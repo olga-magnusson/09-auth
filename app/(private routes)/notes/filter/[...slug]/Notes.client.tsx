@@ -44,6 +44,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
     staleTime: 1000 * 60,
   });
 
+  const hasNotes = !!data?.notes?.length;
   const totalPages: number = data?.totalPages ?? 1;
 
   return (
@@ -57,9 +58,11 @@ export default function NotesClient({ tag }: NotesClientProps) {
       {isLoading && <p>Loading notes...</p>}
       {isError && <p>Error loading notes.</p>}
 
-      {data && <NoteList notes={data.notes} />}
+      {hasNotes && <NoteList notes={data!.notes} />}
 
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      {hasNotes && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}
+
+      {data && !hasNotes && <p>No notes found.</p>}
     </div>
   );
 }

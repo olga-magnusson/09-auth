@@ -1,5 +1,5 @@
 import NotePreview from "@/components/NotePreview/NotePreview";
-import { fetchNoteById } from "@/lib/api/clientApi";
+import { fetchNoteById } from "@/lib/api/serverApi";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import type { Metadata } from "next";
 
@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: note.title,
-    description: note.content.slice(0, 160), // short description
+    description: note.content.slice(0, 160), 
     openGraph: {
       title: note.title,
       description: note.content.slice(0, 160),

@@ -1,37 +1,63 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { checkSession } from "./lib/api/serverApi";
 
-const privateRoutes = ["/profile", "/notes"];
-const authRoutes = ["/sign-in", "/sign-up"];
+const PRIVATE_ROUTES = ["/notes", "/profile"];
+const AUTH_ROUTES = ["/login", "/register"];
 
-export function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+
   const { pathname } = request.nextUrl;
 
-  const token = request.cookies.get("token");
-
-  const isPrivate = privateRoutes.some((route) =>
+  const isPrivateRoute = PRIVATE_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
 
-  const isAuth = authRoutes.some((route) =>
+  const isAuthRoute = AUTH_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
 
-  if (isPrivate && !token) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+  let isAuthenticated = !!accessToken;
+
+  const response = NextResponse.next();
+
+  if (!accessToken && refreshToken) {
+    try {
+      const session = await checkSession();
+
+      if (session?.accessToken) {
+        isAuthenticated = true;
+
+        response.cookies.set("accessToken", session.accessToken, {
+          httpOnly: true,
+          path: "/",
+        });
+
+        if (session.refreshToken) {
+          response.cookies.set("refreshToken", session.refreshToken, {
+            httpOnly: true,
+            path: "/",
+          });
+        }
+      }
+    } catch {
+      isAuthenticated = false;
+    }
   }
 
-  if (isAuth && token) {
-    return NextResponse.redirect(new URL("/profile", request.url));
+  if (!isAuthenticated && isPrivateRoute) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return NextResponse.next();
+  if (isAuthenticated && isAuthRoute) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: [
-    "/profile/:path*",
-    "/notes/:path*",
-    "/sign-in",
-    "/sign-up",
-  ],
+  matcher: ["/notes/:path*", "/profile", "/login", "/register"],
 };

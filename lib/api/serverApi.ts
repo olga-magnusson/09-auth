@@ -1,17 +1,77 @@
 import { cookies } from "next/headers";
-import axios from "axios";
-import { User } from "@/types/user";
+import { api } from "./api";
+import type { User } from "@/types/user";
+import type { Note, NoteTag } from "@/types/note";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL + "/api";
+interface FetchNotesOptions {
+  page: number;
+  perPage: number;
+  tag?: NoteTag;
+  search?: string;
+}
 
-const serverApi = axios.create({
-  baseURL,
-});
+interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
 
 export const getMe = async (): Promise<User> => {
   const cookieStore = await cookies();
 
-  const res = await serverApi.get("/users/me", {
+  const res = await api.get("/users/me", {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
+
+  return res.data;
+};
+
+export const fetchNoteById = async (id: string): Promise<Note> => {
+  const cookieStore = await cookies();
+
+  const res = await api.get(`/notes/${id}`, {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
+
+  return res.data;
+};
+
+export const fetchNotes = async ({
+  page,
+  perPage,
+  tag,
+  search,
+}: FetchNotesOptions): Promise<FetchNotesResponse> => {
+  const cookieStore = await cookies();
+
+  const params: Record<string, string | number> = {
+    page,
+    perPage,
+  };
+
+  if (tag) params.tag = tag;
+  if (search) params.search = search;
+
+  const res = await api.get("/notes", {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+    params,
+  });
+
+  return res.data; 
+};
+
+export const checkSession = async (): Promise<{
+  accessToken: string;
+  refreshToken: string;
+}> => {
+  const cookieStore = await cookies();
+
+  const res = await api.get("/auth/session", {
     headers: {
       Cookie: cookieStore.toString(),
     },
