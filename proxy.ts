@@ -5,7 +5,7 @@ import { checkSession } from "./lib/api/serverApi";
 const PRIVATE_ROUTES = ["/notes", "/profile"];
 const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
-export async function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
