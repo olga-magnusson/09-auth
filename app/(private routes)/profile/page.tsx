@@ -1,5 +1,6 @@
 import { Metadata } from "next";
-import css from "./page.module.css";
+import css from "./ProfilePage.module.css";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Profile | NoteHub",
@@ -19,7 +20,7 @@ export default function ProfilePage() {
         </div>
 
         <div className={css.avatarWrapper}>
-          <img
+          <Image
             src="https://ac.goit.global/fullstack/react/avatar.jpg"
             alt="User Avatar"
             width={120}

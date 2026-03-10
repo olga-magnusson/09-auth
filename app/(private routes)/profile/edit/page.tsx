@@ -4,6 +4,7 @@ import css from "./page.module.css";
 import { useRouter } from "next/navigation";
 import { updateMe } from "@/lib/api/clientApi";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function EditProfilePage() {
       <div className={css.profileCard}>
         <h1 className={css.formTitle}>Edit Profile</h1>
 
-        <img
+        <Image
           src="https://ac.goit.global/fullstack/react/avatar.jpg"
           alt="User Avatar"
           width={120}
