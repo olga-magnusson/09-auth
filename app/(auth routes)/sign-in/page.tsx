@@ -3,7 +3,7 @@
 import { login } from "@/lib/api/clientApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import css from "./page.module.css";
+import css from "./SignInPage.module.css";
 
 export default function SignInPage() {
   const router = useRouter();
