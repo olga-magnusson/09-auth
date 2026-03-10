@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { checkSession } from "./lib/api/serverApi";
 
 const PRIVATE_ROUTES = ["/notes", "/profile"];
-const AUTH_ROUTES = ["/login", "/register"];
+const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
@@ -27,16 +27,16 @@ export async function middleware(request: NextRequest) {
     try {
       const session = await checkSession();
 
-      if (session?.accessToken) {
+      if (session?.data?.accessToken) {
         isAuthenticated = true;
 
-        response.cookies.set("accessToken", session.accessToken, {
+        response.cookies.set("accessToken", session.data.accessToken, {
           httpOnly: true,
           path: "/",
         });
 
-        if (session.refreshToken) {
-          response.cookies.set("refreshToken", session.refreshToken, {
+        if (session.data.refreshToken) {
+          response.cookies.set("refreshToken", session.data.refreshToken, {
             httpOnly: true,
             path: "/",
           });
@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!isAuthenticated && isPrivateRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
   if (isAuthenticated && isAuthRoute) {
@@ -59,5 +59,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/notes/:path*", "/profile", "/login", "/register"],
+  matcher: [
+    "/notes/:path*",        
+    "/profile/:path*",      
+    "/sign-in",
+    "/sign-up",
+  ],
 };

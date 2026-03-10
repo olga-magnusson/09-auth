@@ -2,18 +2,24 @@ import { Metadata } from "next";
 import css from "./ProfilePage.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { useAuthStore } from "@/lib/store/authStore";
+import { getMe } from "@/lib/api/serverApi";
+import type { User } from "@/types/user";
 
 export const metadata: Metadata = {
   title: "Profile | NoteHub",
   description: "User profile page",
 };
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  let user: User | null = null;
+  try {
+    user = await getMe();
+  } catch (error) {
+    console.error("Failed to fetch user:", error);
+  }
 
-  const {user} = useAuthStore();
-  if(!user){
-    return <p>Loading user profile...</p>
+  if (!user) {
+    return <p>Loading user profile...</p>;
   }
 
   return (
@@ -29,7 +35,7 @@ export default function ProfilePage() {
 
         <div className={css.avatarWrapper}>
           <Image
-            src="https://ac.goit.global/fullstack/react/avatar.jpg"
+            src={user.avatar || "https://ac.goit.global/fullstack/react/avatar.jpg"}
             alt="User Avatar"
             width={120}
             height={120}
@@ -38,8 +44,8 @@ export default function ProfilePage() {
         </div>
 
         <div className={css.profileInfo}>
-          <p>Username: your_username</p>
-          <p>Email: your_email@example.com</p>
+          <p>Username: {user.username}</p>
+          <p>Email: {user.email}</p>
         </div>
       </div>
     </main>
