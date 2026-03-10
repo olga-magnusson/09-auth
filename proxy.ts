@@ -14,7 +14,6 @@ export default async function middleware(request: NextRequest) {
   const isPrivateRoute = PRIVATE_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
-
   const isAuthRoute = AUTH_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
@@ -40,6 +39,10 @@ export default async function middleware(request: NextRequest) {
             httpOnly: true,
             path: "/",
           });
+        }
+
+        if (isPrivateRoute) {
+          return response;
         }
       }
     } catch {
