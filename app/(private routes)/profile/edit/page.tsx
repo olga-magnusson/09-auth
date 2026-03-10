@@ -5,18 +5,28 @@ import { useRouter } from "next/navigation";
 import { updateMe } from "@/lib/api/clientApi";
 import { useState } from "react";
 import Image from "next/image";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const { user, setUser } = useAuthStore(); 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [username, setUsername] = useState(user?.username || "");
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!user) return;
 
-    await updateMe({ username });
-
-    router.push("/profile");
+    try {
+      const updatedUser = await updateMe({ username }); 
+      setUser(updatedUser); 
+      router.push("/profile"); 
+    } catch (error) {
+      console.error("Profile update failed:", error);
+    }
   };
+
+  if (!user) return <p>Loading user data...</p>;
 
   return (
     <main className={css.mainContent}>
@@ -24,7 +34,7 @@ export default function EditProfilePage() {
         <h1 className={css.formTitle}>Edit Profile</h1>
 
         <Image
-          src="https://ac.goit.global/fullstack/react/avatar.jpg"
+          src={user.avatar || "https://ac.goit.global/fullstack/react/avatar.jpg"}
           alt="User Avatar"
           width={120}
           height={120}
@@ -34,7 +44,6 @@ export default function EditProfilePage() {
         <form className={css.profileInfo} onSubmit={handleSubmit}>
           <div className={css.usernameWrapper}>
             <label htmlFor="username">Username:</label>
-
             <input
               id="username"
               type="text"
@@ -44,7 +53,7 @@ export default function EditProfilePage() {
             />
           </div>
 
-          <p>Email: user_email@example.com</p>
+          <p>Email: {user.email}</p>
 
           <div className={css.actions}>
             <button type="submit" className={css.saveButton}>
