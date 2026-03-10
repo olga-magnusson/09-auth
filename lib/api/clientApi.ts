@@ -1,10 +1,37 @@
 import { api } from "./api";
 import { User } from "@/types/user";
+import { Note } from "@/types/note";
 
 interface AuthRequest {
   email: string;
   password: string;
 }
+
+interface CreateNoteRequest {
+  title: string;
+  content: string;
+  tag: string;
+}
+
+export const fetchNotes = async (): Promise<Note[]> => {
+  const res = await api.get("/notes");
+  return res.data;
+};
+
+export const fetchNoteById = async (id: string): Promise<Note> => {
+  const res = await api.get(`/notes/${id}`);
+  return res.data;
+};
+
+export const createNote = async (data: CreateNoteRequest): Promise<Note> => {
+  const res = await api.post("/notes", data);
+  return res.data;
+};
+
+export const deleteNote = async (id: string): Promise<Note> => {
+  const res = await api.delete(`/notes/${id}`);
+  return res.data;
+};
 
 export const register = async (data: AuthRequest): Promise<User> => {
   const res = await api.post("/auth/register", data);
