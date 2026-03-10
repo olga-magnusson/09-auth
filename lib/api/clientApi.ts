@@ -1,6 +1,19 @@
 import { api } from "./api";
 import { User } from "@/types/user";
-import { Note } from "@/types/note";
+import { Note, NoteTag } from "@/types/note";
+
+export interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
+
+interface FetchNotesParams {
+  page: number;
+  perPage: number;
+  search?: string;
+  tag?: NoteTag;
+}
+
 
 interface AuthRequest {
   email: string;
@@ -13,8 +26,10 @@ interface CreateNoteRequest {
   tag: string;
 }
 
-export const fetchNotes = async (): Promise<Note[]> => {
-  const res = await api.get("/notes");
+export const fetchNotes = async (
+  params: FetchNotesParams
+): Promise<FetchNotesResponse> => {
+  const res = await api.get("/notes", { params });
   return res.data;
 };
 
